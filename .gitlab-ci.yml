@@ -1,5 +1,5 @@
 before_script:
-  - pip install pip
+  - pip install pipenv
   - pipenv install --dev
 
 stages:
