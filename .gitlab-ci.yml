@@ -1,0 +1,21 @@
+before_script:
+  - pip install pip
+  - pipenv install --dev
+
+stages:
+  - test
+  - deploy
+
+run_pytest:
+  stage: test
+  script:
+    - pipenv run pytest
+
+## NOTE: Untested boilerplate configuration
+deploy_to_pypi:
+  stage: deploy
+  script:
+    - pipenv run python setup.py bdist_wheel
+    - pipenv run twine upload --skip-existing --username consideratio dist/*
+  only:
+    - tags
