@@ -9,6 +9,7 @@ pytest = "*"
 setuptools = "*"
 twine = "*"
 wheel = "*"
+z2jh-cost-simulator-consideratio = {path = "."}
 
 [packages]
 numpy = "*"

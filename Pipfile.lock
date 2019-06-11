@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "af9ee5f247c93fd6bd34505e8a2b9893b2276caf0d53a98e1e40772d97069823"
+            "sha256": "d99e933e7c2fc2b99cfca0639127ee94e965d59d18a8a409e6490c1729cfccf1"
         },
         "pipfile-spec": 6,
         "requires": {},
@@ -239,6 +239,9 @@
             ],
             "index": "pypi",
             "version": "==0.33.4"
+        },
+        "z2jh-cost-simulator-consideratio": {
+            "path": "."
         },
         "zipp": {
             "hashes": [
