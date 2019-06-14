@@ -5,36 +5,22 @@ import pandas as pd
 
 class User():
     """
-        The user object should be initialized with the activity to simulate during a full week.
+    The user object should be initialized with the activity to simulate during a full week.
     """
     def __init__(self,simulation_time):
         self.activity = np.array(simulation_time)
-        self.pod = None
+        self.has_pod = False
+        self.node_assigned_to_pod = None
+        self.pod_start_time = 0
+
+    @property
+    def pod_is_pending(self):
+        return self.node_assigned_to_pod == None
+
+    @property
+    def pod_is_assigned(self):
+        return self.node_assigned_to_pod != None
         
-
-class UserPod():
-    def __init__(self, user):
-        self.user = user
-        self.node = None
-        self.start_time = 0
-
-
-    @property
-    def is_pending(self):
-        return self.node == None
-
-    @property
-    def is_assigned(self):
-        return self.node != None
-
-
-    def delete(self):
-        self.user.pod = None
-        self.user = None
-        self.node = None
-        self.start_time = 0
-
-
 
 class NodeState(enum.Enum):
     Stopped = 0
@@ -51,10 +37,15 @@ class Node():
         self.list_pods = []
 
 
-    def remove_pod_ref(self,pod,time):
-        self.list_pods.remove(pod)
+    def remove_pod_ref(self, user_pod, time):
+        user_pod.has_pod = False
+        user_pod.node_assigned_to_pod = None
+        user_pod.start_time = 0
         if self.utilized_capacity[time-1] > 0:
             self.utilized_capacity[time:] = self.utilized_capacity[time-1] - 1
+        self.list_pods.remove(user_pod)
+        
+        
             #else:
                 #raise "this should never happen"
 
@@ -71,25 +62,23 @@ class Simulation():
         self.user_activity = user_activity
         self.start_time = 0
         self.utilization_data = pd.DataFrame()
-        # TODO: keep track of the current simulation "time" (the number of iterations it has run in the simulation loop)
+        
 
         
         
     """
-        def calculate_node_capacity():
+    def calculate_node_capacity():
 
-            Calculate the capacity of the node, given the node resource(memory) and 
-            user resource(memory). 
-            Initialize the node pool with nodes for the selected min and max number of nodes.
-
-
-            node_capacity = 0
-            node_available_memory = configurations_for_simulator['node_memory'] * 1024 - 216 
-            # 216 MB is the approx. node memory used by system pods.
-            node_capacity = node_available_memory / configurations_for_simulator['user_pod_memory']
-            for node_count in range(configurations_for_simulator[min_nodes],configurations_for_simulator[max_nodes]):
-                node_pool.append(Node(capacity = round(node_capacity)))  
-                # rounding off the value to get the capacity.
+        #Calculate the capacity of the node, given the node resource(memory) and 
+        user resource(memory). 
+        #Initialize the node pool with nodes for the selected min and max number of nodes.
+        node_capacity = 0
+        node_available_memory = configurations_for_simulator['node_memory'] * 1024 - 216 
+        # 216 MB is the approx. node memory used by system pods.
+        node_capacity = node_available_memory / configurations_for_simulator['user_pod_memory']
+        for node_count in range(configurations_for_simulator[min_nodes],configurations_for_simulator[max_nodes]):
+            node_pool.append(Node(capacity = round(node_capacity)))  
+            # rounding off the value to get the capacity.
     """
     
     def add_nodes(self):
@@ -102,40 +91,36 @@ class Simulation():
             user = User(self.simulation_time)
             user.activity = activity
             self.user_pool.append(user)
-     
-            
-    
+
     def run_simulation(self, stop=0):
-        # TODO: assert stop <= max time...
-        
         self.add_nodes()
-        self.generate_user_activity()
+        
         ## The amount of time a user is allowed to be inactive before the user's pod is culled
         pod_culling_max_inactivity_time = 3  #configurations_for_simulator['pod_inactivity_time']
         ## The amount of time a pod is allowed to live before it is culled
         pod_culling_max_lifetime = 7    #configurations_for_simulator['pod_max_lifetime']
         
-        #TODO: t should be a part of the class and not a local variable
         for t in range(self.start_time, stop):
             # Create user pods for active users without a pod
             for user in self.user_pool:
-                if user.activity[t] == 1 and user.pod == None:
-                        user.pod = UserPod(user)
+                if user.activity[t] == 1 and user.has_pod == False:
+                    user.has_pod = True
+                    
             """
             Scheduler is responsible of placement of pending pods
             on the most resource utilized node that still has room.
             """
             ## Identify pods to schedule
-            pending_pods = [user.pod for user in self.user_pool if user.pod != None and user.pod.is_pending]  
-            sorted_node_pool = sorted(self.node_pool, key=lambda node:node.utilized_capacity[t] ,reverse = True) 
-            for pod in pending_pods:
+            pending_pods = [user_pod for user_pod in self.user_pool if user_pod.has_pod == True and user_pod.pod_is_pending]  
+            
+            sorted_node_pool = sorted(self.node_pool, key=lambda node:node.utilized_capacity[t], reverse=True) 
+            for user_pod in pending_pods:
                 ## Find a node to schedule the pod on
                 for node in sorted_node_pool:
                     if node.utilized_capacity[t] < node.capacity:
-                        pod.node = node
-                        #assert pod.node != None
-                        pod.start_time = t
-                        node.list_pods.append(pod)
+                        user_pod.node_assigned_to_pod = node
+                        user_pod.pod_start_time = t
+                        node.list_pods.append(user_pod)
                         node.utilized_capacity[t:] = node.utilized_capacity[t-1] + 1
                         break    
 
@@ -159,8 +144,8 @@ class Simulation():
                 no_of_started_nodes = len(started_nodes) # count of started nodes
                 for node in started_nodes:
 
-                        #if no_of_started_nodes > max_min_nodes.lower:
-                        # Min no of nodes has been taken as 1.
+                    #if no_of_started_nodes > max_min_nodes.lower:
+                    # Min no of nodes has been taken as 1.
                     if no_of_started_nodes > 1:
                         if  np.sum(node.utilized_capacity[t-5:t+1]) == 0:
                             node.started_state[t] = NodeState.Stopping  
@@ -172,8 +157,8 @@ class Simulation():
     
             #Pod Culler
             for node in self.node_pool:
-                pods_assigned_to_node = [pod for pod in node.list_pods]
-                for pod in pods_assigned_to_node:
+                pods_assigned_to_node = [user_pod for user_pod in node.list_pods]
+                for user_pod in pods_assigned_to_node:
 
                     """
                     Pod Culler: cull for inactivity
@@ -183,11 +168,12 @@ class Simulation():
                     """
 
                     if pod_culling_max_inactivity_time > 0:
-                        if t >= pod_culling_max_inactivity_time and np.sum(pod.user.activity[t-pod_culling_max_inactivity_time:t+1]) == 0:
-                            pod.delete()
-                            assert pod.user == None
-                            assert pod.node == None
-                            node.remove_pod_ref(pod, t)
+                        if t >= pod_culling_max_inactivity_time and np.sum(user_pod.activity[t-pod_culling_max_inactivity_time:t+1]) == 0:
+                           
+                            node.remove_pod_ref(user_pod, t)
+                            print("pod removed")
+                            print(len(self.node_pool[0].list_pods))
+                            print(len(self.node_pool[1].list_pods))
                             continue
 
                     """
@@ -198,18 +184,15 @@ class Simulation():
                     """
 
                     if pod_culling_max_lifetime > 0:
-                        if t - pod.start_time >= pod_culling_max_lifetime:
-                            pod.delete()
-                            assert pod.user == None
-                            assert pod.node == None
-                            node.remove_pod_ref(pod, t)
+                        if t - user_pod.pod_start_time >= pod_culling_max_lifetime:
+                            node.remove_pod_ref(user_pod, t)
 
         self.create_utilization_data()
         self.start_time = stop
         #self.create_graph()
         
     def create_utilization_data(self):
-            # storing the min by min utilization data
+        # storing the min by min utilization data
         time_data = list(range(self.simulation_time)) 
 
         node_data = {'time':time_data}
