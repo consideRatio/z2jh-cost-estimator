@@ -60,7 +60,7 @@ class Simulation:
         self.user_pool = []
         self.user_activity = user_activity
         self.simulation_time = len(user_activity[0])
-        #self.simulation_time = simulation_time
+        # self.simulation_time = simulation_time
         self.start_time = 0
         self.utilization_data = pd.DataFrame()
 
@@ -89,7 +89,6 @@ class Simulation:
             user = User(self.simulation_time)
             user.activity = activity
             self.user_pool.append(user)
-            
 
     def run_simulation(self, stop=0):
         self.add_nodes()
@@ -121,10 +120,12 @@ class Simulation:
             for user_pod in pending_pods:
                 ## Find a node to schedule the pod on
                 sorted_node_pool = sorted(
-                    self.node_pool, key=lambda node: node.utilized_capacity[t], reverse=True
+                    self.node_pool,
+                    key=lambda node: node.utilized_capacity[t],
+                    reverse=True,
                 )
                 for node in sorted_node_pool:
-            
+
                     if node.utilized_capacity[t] < node.capacity:
                         user_pod.node_assigned_to_pod = node
                         user_pod.pod_start_time = t
