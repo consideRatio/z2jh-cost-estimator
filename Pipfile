@@ -9,6 +9,7 @@ pytest = "*"
 setuptools = "*"
 twine = "*"
 wheel = "*"
+pre-commit = "*"
 z2jh-cost-simulator-consideratio = {path = "."}
 black = "*"
 
