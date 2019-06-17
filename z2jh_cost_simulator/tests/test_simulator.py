@@ -100,204 +100,20 @@ def test_schedule_on_most_utilized_node():
 
     user_activity = [
         [0, 1, 1, 0, 0, 0, 0, 1, 1],
-        [0, 0, 1, 0, 0, 0, 0, 0, 0],
+        [0, 0, 1, 1, 1, 1, 0, 0, 0],
         [0, 0, 0, 1, 1, 1, 1, 1, 1],
         [0, 0, 0, 0, 1, 1, 1, 1, 1],
     ]
     sim = Simulation(simulation_time=30, user_activity=user_activity)
     sim.generate_user_activity()
-    sim.run_simulation(stop=3)
-    assert len(sim.node_pool[0].list_pods) == 2
-    sim.run_simulation(stop=5)
-    assert sim.node_pool[0].utilized_capacity[4] == 3
-    assert sim.node_pool[1].utilized_capacity[4] == 1
+    sim.run_simulation(stop=4)
+    assert len(sim.node_pool[0].list_pods) == 3
+    assert len(sim.node_pool[1].list_pods) == 0
     sim.run_simulation(stop=7)
-    assert sim.node_pool[0].utilized_capacity[6] == 2
-    assert sim.node_pool[1].utilized_capacity[4] == 1
-    sim.run_simulation(stop=9)
-    # The new user pod will be scheduled on the most utilized node(one with the utilized capacity 2)
-    assert sim.node_pool[0].utilized_capacity[7] == 3
-
-
-def test_min_number_of_running_nodes():
-    # If a node is not used for 5 minutes then it should be 'Stopped'.
-    # But at any time,(minimum number of nodes) should always be 'Running'
-    user_activity = [
-        [
-            0,
-            1,
-            1,
-            1,
-            1,
-            1,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-        ],
-        [
-            0,
-            0,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-        ],
-        [
-            0,
-            0,
-            0,
-            1,
-            1,
-            1,
-            1,
-            1,
-            0,
-            0,
-            0,
-            1,
-            1,
-            1,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-        ],
-        [
-            0,
-            0,
-            0,
-            0,
-            1,
-            1,
-            1,
-            1,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            1,
-            1,
-            1,
-            1,
-            1,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-        ],
-        [
-            0,
-            0,
-            0,
-            0,
-            0,
-            1,
-            1,
-            1,
-            1,
-            1,
-            0,
-            0,
-            0,
-            0,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-        ],
-    ]
-
-    sim = Simulation(simulation_time=28, user_activity=user_activity)
-    sim.generate_user_activity()
-    sim.run_simulation(stop=18)
-    assert (
-        sim.node_pool[1].utilized_capacity[17] == 0
-    )  # The utilized capacity of node 2 became 0.
-    assert sim.node_pool[1].started_state[17] == NodeState.Stopping
-    sim.run_simulation(stop=19)
-    assert sim.node_pool[1].started_state[18] == NodeState.Stopped
-    sim.run_simulation(stop=24)
-    assert (
-        sim.node_pool[0].utilized_capacity[23] == 0
-    )  # The utilized capacity of node 1 also became 0.
-    # It should be 'Stopped' but as the minimum number of nodes to be in a 'Running' state is 1, this node will
-    # be in the 'Running' state.
-    sim.run_simulation(stop=28)
-    assert sim.node_pool[0].started_state[27] == NodeState.Running
-
+    assert len(sim.node_pool[0].list_pods) == 2
+    assert len(sim.node_pool[1].list_pods) == 1
+    sim.run_simulation(stop=8)
+    assert len(sim.node_pool[0].list_pods) == 3
 
 def test_two_pods_culling():
     user_activity = [[0, 0, 1, 1, 0, 0, 0, 0, 0], [0, 1, 1, 1, 1, 1, 1, 1, 1]]
@@ -313,3 +129,65 @@ def test_two_pods_culling():
     assert (
         sim.node_pool[0].utilized_capacity[8] == 0
     )  # the second user pod is culled as it has been active for 7 minutes
+
+    
+def test_two_pods_created_simultaneously():
+    user_activity = [[0,1,0], [0,1,0]]
+    sim = Simulation(simulation_time=3, user_activity=user_activity)
+    sim.generate_user_activity()
+    sim.run_simulation(stop=2)
+    assert sim.node_pool[0].utilized_capacity[1] == 2
+    assert len(sim.node_pool[0].list_pods) == 2
+
+def test_simultaneous_pod_creation_1(): 
+    user_activity = [[1,0,0], [1,0,0]]
+    sim = Simulation(simulation_time=30, user_activity=user_activity)
+    sim.generate_user_activity()
+    sim.run_simulation(stop=1)
+    assert sim.node_pool[0].utilized_capacity[0] == 2
+    assert len(sim.node_pool[0].list_pods) == 2
+
+def test_simultaneous_pod_creation_2():
+    user_activity = [[1,1,1], [1,1,1]]
+    sim = Simulation(simulation_time=30, user_activity=user_activity)
+    sim.generate_user_activity()
+    sim.run_simulation(stop=1)
+    assert sim.node_pool[0].utilized_capacity[0] == 2
+    assert len(sim.node_pool[0].list_pods) == 2
+
+def test_simultaneous_pod_creation_3():
+    user_activity = [[0,1,1], [0,1,1]]
+    sim = Simulation(simulation_time=30, user_activity=user_activity)
+    sim.generate_user_activity()
+    sim.run_simulation(stop=2)
+    assert sim.node_pool[0].utilized_capacity[1] == 2
+    assert len(sim.node_pool[0].list_pods) == 2
+    
+
+def test_two_pods_culling_at_same_time():
+    user_activity = [[0, 0, 1, 1, 1, 0, 0, 0, 0], [0, 1, 1, 1, 1, 1, 1, 1, 1]]
+    sim = Simulation(simulation_time=30, user_activity=user_activity)
+    sim.generate_user_activity()
+    sim.run_simulation(stop=3)
+    assert sim.node_pool[0].utilized_capacity[2] == 2
+    sim.run_simulation(9)  # two pods being culled at the same time. 
+    assert (
+        sim.node_pool[0].utilized_capacity[8] == 0
+    ) 
+    
+    
+
+def test_min_number_of_running_nodes():
+    # If a node is not used for 5 minutes then it should be 'Stopped'.
+    # But at any time,(minimum number of nodes) should always be 'Running'
+    user_activity = [[0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                     [0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                     [0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                     [0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                     [0,0,0,0,0,1,1,1,1,1,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0]]
+
+    sim = Simulation(simulation_time=25, user_activity=user_activity)
+    sim.generate_user_activity()
+    
+    
+    
