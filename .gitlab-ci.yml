@@ -8,6 +8,11 @@ stages:
   - test
   - deploy
 
+run_black:
+  stage: test
+  script:
+    - pipenv run black --check --diff .
+
 run_pytest:
   stage: test
   script:

@@ -18,7 +18,13 @@
     pipenv install --dev
     ```
 
-4. Run tests
+4. Install the pre-commit hook for black autoformatting
+
+    ```sh
+    pipenv run pre-commit install
+    ```
+
+5. Run tests
 
     ```sh
     pipenv run pytest
