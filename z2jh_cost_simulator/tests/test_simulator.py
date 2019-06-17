@@ -181,13 +181,28 @@ def test_min_number_of_running_nodes():
     # If a node is not used for 5 minutes then it should be 'Stopped'.
     # But at any time,(minimum number of nodes) should always be 'Running'
     user_activity = [[0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                     [0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                     [0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                     [0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                     [0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                      [0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                     [0,0,0,0,0,1,1,1,1,1,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0]]
+                     [0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]
 
     sim = Simulation(simulation_time=25, user_activity=user_activity)
     sim.generate_user_activity()
+    sim.run_simulation(stop=7)
+    assert len(sim.node_pool[0].list_pods) == 3
+    assert len(sim.node_pool[1].list_pods) == 2
+    sim.run_simulation(stop=16)
+    assert sim.node_pool[0].started_state[15] == NodeState.Stopping
+    
+    sim.run_simulation(stop=17)
+    assert sim.node_pool[0].started_state[16] == NodeState.Stopped
+    assert len(sim.node_pool[1].list_pods) == 0
+    sim.run_simulation(stop=23)
+    assert sim.node_pool[1].started_state[22] == NodeState.Running
+    assert sim.node_pool[0].started_state[22] == NodeState.Stopped
+    
+    
+    
     
     
     
