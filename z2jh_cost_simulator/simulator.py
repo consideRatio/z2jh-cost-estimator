@@ -54,13 +54,13 @@ class Node:
 
 # The main class for running the simulation
 class Simulation:
-    def __init__(self, simulation_time, user_activity):
+    def __init__(self, user_activity):
         # self.configurations_for_simulator = configurations_for_simulator
         self.node_pool = []
         self.user_pool = []
-        #self.simulation_time = user_activity)
-        self.simulation_time = simulation_time
         self.user_activity = user_activity
+        self.simulation_time = len(user_activity[0])
+        #self.simulation_time = simulation_time
         self.start_time = 0
         self.utilization_data = pd.DataFrame()
 
