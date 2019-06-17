@@ -44,8 +44,8 @@ class Node:
         user_pod.has_pod = False
         user_pod.node_assigned_to_pod = None
         user_pod.start_time = 0
-        if self.utilized_capacity[time - 1] > 0:
-            self.utilized_capacity[time:] = self.utilized_capacity[time - 1] - 1
+        if self.utilized_capacity[time] > 0:
+            self.utilized_capacity[time:] = self.utilized_capacity[time] - 1
         self.list_pods.remove(user_pod)
 
         # else:
@@ -88,6 +88,7 @@ class Simulation:
             user = User(self.simulation_time)
             user.activity = activity
             self.user_pool.append(user)
+            
 
     def run_simulation(self, stop=0):
         self.add_nodes()
@@ -115,18 +116,21 @@ class Simulation:
                 for user_pod in self.user_pool
                 if user_pod.has_pod == True and user_pod.pod_is_pending
             ]
-
-            sorted_node_pool = sorted(
-                self.node_pool, key=lambda node: node.utilized_capacity[t], reverse=True
-            )
+            count = 0
             for user_pod in pending_pods:
                 ## Find a node to schedule the pod on
+                sorted_node_pool = sorted(
+                    self.node_pool, key=lambda node: node.utilized_capacity[t], reverse=True
+                )
                 for node in sorted_node_pool:
+            
                     if node.utilized_capacity[t] < node.capacity:
                         user_pod.node_assigned_to_pod = node
+                        print('Adding the pod' ,t)
                         user_pod.pod_start_time = t
                         node.list_pods.append(user_pod)
-                        node.utilized_capacity[t:] = node.utilized_capacity[t - 1] + 1
+                        node.utilized_capacity[t:] = node.utilized_capacity[t] + 1
+                        print('at t',t,'the utilized capacity:', node.utilized_capacity[t])
                         break
 
             """
