@@ -58,6 +58,7 @@ class Simulation:
         # self.configurations_for_simulator = configurations_for_simulator
         self.node_pool = []
         self.user_pool = []
+        #self.simulation_time = user_activity)
         self.simulation_time = simulation_time
         self.user_activity = user_activity
         self.start_time = 0
@@ -126,11 +127,9 @@ class Simulation:
             
                     if node.utilized_capacity[t] < node.capacity:
                         user_pod.node_assigned_to_pod = node
-                        print('Adding the pod' ,t)
                         user_pod.pod_start_time = t
                         node.list_pods.append(user_pod)
                         node.utilized_capacity[t:] = node.utilized_capacity[t] + 1
-                        print('at t',t,'the utilized capacity:', node.utilized_capacity[t])
                         break
 
             """
