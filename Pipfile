@@ -10,7 +10,12 @@ setuptools = "*"
 twine = "*"
 wheel = "*"
 z2jh-cost-simulator-consideratio = {path = "."}
+black = "*"
 
 [packages]
 numpy = "*"
 pandas = "*"
+plotly = "*"
+
+[pipenv]
+allow_prereleases = true
