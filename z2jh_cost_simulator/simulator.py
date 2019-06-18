@@ -54,28 +54,27 @@ class Node:
 
 # The main class for running the simulation
 class Simulation:
-    def __init__(self, user_activity):
-        # self.configurations_for_simulator = configurations_for_simulator
+    def __init__(self, configurations, user_activity):
+        self.configurations = configurations
         self.node_pool = []
         self.user_pool = []
         self.user_activity = user_activity
         self.simulation_time = len(user_activity[0])
-        # self.simulation_time = simulation_time
         self.start_time = 0
         self.utilization_data = pd.DataFrame()
 
     """
-    def calculate_node_capacity():
+    def add_nodes(self):
 
         #Calculate the capacity of the node, given the node resource(memory) and 
         user resource(memory). 
         #Initialize the node pool with nodes for the selected min and max number of nodes.
         node_capacity = 0
-        node_available_memory = configurations_for_simulator['node_memory'] * 1024 - 216 
+        node_available_memory = self.configurations['node_memory'] * 1024 - 216 
         # 216 MB is the approx. node memory used by system pods.
-        node_capacity = node_available_memory / configurations_for_simulator['user_pod_memory']
-        for node_count in range(configurations_for_simulator[min_nodes],configurations_for_simulator[max_nodes]):
-            node_pool.append(Node(capacity = round(node_capacity)))  
+        node_capacity = node_available_memory / self.configurations['user_pod_memory']
+        for node_count in range(self.configurations[min_nodes],self.configurations[max_nodes]):
+            node_pool.append(Node(self.simulation_time,capacity = round(node_capacity)))  
             # rounding off the value to get the capacity.
     """
 
@@ -91,14 +90,15 @@ class Simulation:
             self.user_pool.append(user)
 
     def run_simulation(self, stop=0):
+
+        self.generate_user_activity()
         self.add_nodes()
 
         ## The amount of time a user is allowed to be inactive before the user's pod is culled
-        pod_culling_max_inactivity_time = (
-            3
-        )  # configurations_for_simulator['pod_inactivity_time']
+        pod_culling_max_inactivity_time = self.configurations["pod_inactivity_time"]
+
         ## The amount of time a pod is allowed to live before it is culled
-        pod_culling_max_lifetime = 7  # configurations_for_simulator['pod_max_lifetime']
+        pod_culling_max_lifetime = self.configurations["pod_max_lifetime"]
 
         for t in range(self.start_time, stop):
             # Create user pods for active users without a pod
@@ -151,9 +151,11 @@ class Simulation:
 
             """
             Cluster Autoscaler (CA): stop nodes
-            If a node doesn't have any pods scheduled to it for 5 minutes, the CA makes the node 'Stopped'.
+            If a node doesn't have any pods scheduled to it for a certain interval of time(node_stop_time), the CA makes the node 'Stopped'.
+            
             """
-            if t >= 5:
+            node_stop_time = self.configurations["node_stop_time"]
+            if t >= node_stop_time:
                 started_nodes = [
                     node
                     for node in self.node_pool
@@ -163,8 +165,11 @@ class Simulation:
                 for node in started_nodes:
                     # if no_of_started_nodes > max_min_nodes.lower:
                     # Min no of nodes has been taken as 1.
-                    if no_of_started_nodes > 1:
-                        if np.sum(node.utilized_capacity[t - 5 : t + 1]) == 0:
+                    if no_of_started_nodes > self.configurations["min_nodes"]:
+                        if (
+                            np.sum(node.utilized_capacity[t - node_stop_time : t + 1])
+                            == 0
+                        ):
                             node.started_state[t] = NodeState.Stopping
                             node.started_state[t + 1 :] = NodeState.Stopped
                             no_of_started_nodes -= 1
@@ -206,10 +211,37 @@ class Simulation:
                     if pod_culling_max_lifetime > 0:
                         if t - user_pod.pod_start_time >= pod_culling_max_lifetime:
                             node.remove_pod_ref(user_pod, t)
-
-        self.create_utilization_data()
         self.start_time = stop
+        # self.create_utilization_data()
         # self.create_graph()
+
+    """      
+    def create_graph(self):
+        import plotly.plotly as py
+        import plotly.graph_objs as go
+        from plotly.offline import download_plotlyjs, init_notebook_mode, plot, iplot
+
+        list_cols = list(
+            col for col in self.utilization_data.columns if col.find("percent") != -1
+        )
+        data = []
+        for l in list_cols:
+            data.append(
+                go.Scatter(
+                    x=self.utilization_data["time"],
+                    y=self.utilization_data[l],
+                    mode="lines",
+                    name="Node" + str(list_cols.index(l) + 1),
+                )
+            )
+
+        layout = go.Layout(
+            xaxis=dict(title="time in minute", tickmode="linear", tick0=0, dtick=1),
+            yaxis=dict(title="utilization in (%)"),
+        )
+        fig = go.Figure(data=data, layout=layout)
+        iplot(fig)
+    """
 
     def create_utilization_data(self):
         # storing the min by min utilization data
@@ -235,29 +267,4 @@ class Simulation:
             ] = node_data_utilized_percent
 
             self.utilization_data = pd.DataFrame(data=node_data)
-
-    def create_graph(self):
-        import plotly.plotly as py
-        import plotly.graph_objs as go
-        from plotly.offline import download_plotlyjs, init_notebook_mode, plot, iplot
-
-        list_cols = list(
-            col for col in self.utilization_data.columns if col.find("percent") != -1
-        )
-        data = []
-        for l in list_cols:
-            data.append(
-                go.Scatter(
-                    x=self.utilization_data["time"],
-                    y=self.utilization_data[l],
-                    mode="lines",
-                    name="Node" + str(list_cols.index(l) + 1),
-                )
-            )
-
-        layout = go.Layout(
-            xaxis=dict(title="time in min", tickmode="linear", tick0=0, dtick=1),
-            yaxis=dict(title="utilization(%)"),
-        )
-        fig = go.Figure(data=data, layout=layout)
-        iplot(fig)
+        return self.utilization_data
