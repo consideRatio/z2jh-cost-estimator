@@ -54,7 +54,10 @@ class Node:
 
 # The main class for running the simulation
 class Simulation:
+    """"""
+
     def __init__(self, configurations, user_activity):
+        """"""
         self.configurations = configurations
         self.node_pool = []
         self.user_pool = []
@@ -83,7 +86,7 @@ class Simulation:
         self.node_pool.append(Node(self.simulation_time, capacity=3))
         self.node_pool.append(Node(self.simulation_time, capacity=3))
 
-    def generate_user_activity(self):
+    def add_users(self):
         for activity in self.user_activity:
             user = User(self.simulation_time)
             user.activity = activity
@@ -91,8 +94,10 @@ class Simulation:
 
     def run_simulation(self, stop=0):
 
-        self.generate_user_activity()
-        self.add_nodes()
+        if len(self.user_pool) == 0:
+            self.add_users()
+        if len(self.node_pool) == 0:
+            self.add_nodes()
 
         ## The amount of time a user is allowed to be inactive before the user's pod is culled
         pod_culling_max_inactivity_time = self.configurations["pod_inactivity_time"]
@@ -256,7 +261,7 @@ class Simulation:
             for i in range(self.simulation_time):
                 node_data_utilized_capacity.append(node.utilized_capacity[i])
                 node_data_utilized_percent.append(
-                    (node.utilized_capacity[i] / node.capacity) * 100
+                    (node.utilized_capacity[i] / node.capacity)
                 )
 
             node_data[
