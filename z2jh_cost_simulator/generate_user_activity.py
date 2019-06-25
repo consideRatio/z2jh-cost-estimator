@@ -3,7 +3,8 @@ import numpy as np
 
 
 def generate_user_activity(simultaneous_user_count):
-    """Takes a list of integers representing the number of simultaenous users and provides a list of users and their 'user_activity'."""
+    """Takes a list of integers representing the number of simultaenous users and provides a list of users and their 'user_activity'.
+    """
     user_pool = []
     hour_wise_users = simultaneous_user_count
     count_users = 0
@@ -19,9 +20,7 @@ def generate_user_activity(simultaneous_user_count):
                 for user_activity in random.sample(user_pool, k=count_users):
                     _scale_user_activity(user_activity, index)
 
-                for count in range(
-                    hour_wise_users[index] - count_users
-                ):  # adding the users.
+                for count in range(hour_wise_users[index] - count_users):
                     user_activity = np.zeros(len(hour_wise_users) * 60)
                     user_activity = _scale_user_activity(user_activity, index)
                     user_pool.append(user_activity)
