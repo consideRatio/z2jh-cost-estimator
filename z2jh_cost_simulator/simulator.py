@@ -10,6 +10,9 @@ class User:
     """
 
     def __init__(self, simulation_time):
+        """
+        simulation_time - the duration of the simulation(in minutes) . 
+        """
         self.activity = np.array(simulation_time)
         self.has_pod = False
         self.node_assigned_to_pod = None
@@ -25,6 +28,10 @@ class User:
 
 
 class NodeState(enum.Enum):
+    """
+    This class maintains the state of the Node.
+    """
+
     Stopped = 0
     Starting = 1
     Running = 2
@@ -32,7 +39,15 @@ class NodeState(enum.Enum):
 
 
 class Node:
+    """
+    Node class will be initialized with the capacity of user pods that can be scheduled on the node.
+    """
+
     def __init__(self, simulation_time, capacity=20):
+        """
+        simulation_time - the duration of simulation(in minutes)
+        The utilization of the node for every minute of the simulation time is also stored.
+        """
         self.capacity = capacity
         self.started_state = np.array(
             [NodeState.Stopped for i in range(simulation_time)]
@@ -41,6 +56,11 @@ class Node:
         self.list_pods = []
 
     def remove_pod_ref(self, user_pod, time):
+        """
+        This method is invoked when a user pod is culled.
+        The user reference to the pod is removed.
+        The user pod is removed from it's assigned node list.
+        """
         user_pod.has_pod = False
         user_pod.node_assigned_to_pod = None
         user_pod.start_time = 0
@@ -54,10 +74,18 @@ class Node:
 
 # The main class for running the simulation
 class Simulation:
-    """"""
+    """
+
+    """
 
     def __init__(self, configurations, user_activity):
-        """"""
+        """
+        configurations - Settings for Node memory/CPU usage, user pod memory/CPU usage and the configurations for pod culling.
+        
+        user_activity  - The list of the activity of different users. 
+                         Each user's activity is an array of 10080 minutes of 0's and 1's(0 for inactivity and 1 for active) 
+        """
+
         self.configurations = configurations
         self.node_pool = []
         self.user_pool = []
@@ -66,38 +94,44 @@ class Simulation:
         self.start_time = 0
         self.utilization_data = pd.DataFrame()
 
-    """
-    def add_nodes(self):
+    def __add_nodes(self):
 
-        #Calculate the capacity of the node, given the node resource(memory) and 
-        user resource(memory). 
-        #Initialize the node pool with nodes for the selected min and max number of nodes.
+        # Calculate the capacity of the node, given the node resource(memory) and
+        # user resource(memory).
+        # Initialize the node pool with nodes for the selected min and max number of nodes.
         node_capacity = 0
-        node_available_memory = self.configurations['node_memory'] * 1024 - 216 
+        node_available_memory = self.configurations["node_memory"] * 1024 - 216
         # 216 MB is the approx. node memory used by system pods.
-        node_capacity = node_available_memory / self.configurations['user_pod_memory']
-        for node_count in range(self.configurations[min_nodes],self.configurations[max_nodes]):
-            node_pool.append(Node(self.simulation_time,capacity = round(node_capacity)))  
+        node_capacity = node_available_memory / self.configurations["user_pod_memory"]
+        for node_count in range(
+            self.configurations["min_nodes"], self.configurations["max_nodes"]
+        ):
             # rounding off the value to get the capacity.
-    """
+            self.node_pool.append(
+                Node(self.simulation_time, capacity=round(node_capacity))
+            )
 
-    def add_nodes(self):
-        # for the time being we create the node _pool
-        self.node_pool.append(Node(self.simulation_time, capacity=3))
-        self.node_pool.append(Node(self.simulation_time, capacity=3))
-
-    def add_users(self):
+    def __add_users(self):
+        """Initialize the user list with the user activity
+        """
         for activity in self.user_activity:
             user = User(self.simulation_time)
             user.activity = activity
             self.user_pool.append(user)
 
-    def run_simulation(self, stop=0):
-
+    def run(self, stop=0):
+        """
+        The method will be looped till the 'stop' time.
+        for each minute, the run method will:
+        1.Create user pods for active users
+        2.Try scheduling the user pods.
+        3.Auto scale the nodes.
+        4.Cull the pods according to the pod culling configuration.
+        """
         if len(self.user_pool) == 0:
-            self.add_users()
+            self.__add_users()
         if len(self.node_pool) == 0:
-            self.add_nodes()
+            self.__add_nodes()
 
         ## The amount of time a user is allowed to be inactive before the user's pod is culled
         pod_culling_max_inactivity_time = self.configurations["pod_inactivity_time"]
@@ -168,8 +202,6 @@ class Simulation:
                 ]
                 no_of_started_nodes = len(started_nodes)  # count of started nodes
                 for node in started_nodes:
-                    # if no_of_started_nodes > max_min_nodes.lower:
-                    # Min no of nodes has been taken as 1.
                     if no_of_started_nodes > self.configurations["min_nodes"]:
                         if (
                             np.sum(node.utilized_capacity[t - node_stop_time : t + 1])
@@ -217,39 +249,9 @@ class Simulation:
                         if t - user_pod.pod_start_time >= pod_culling_max_lifetime:
                             node.remove_pod_ref(user_pod, t)
         self.start_time = stop
-        # self.create_utilization_data()
-        # self.create_graph()
-
-    """      
-    def create_graph(self):
-        import plotly.plotly as py
-        import plotly.graph_objs as go
-        from plotly.offline import download_plotlyjs, init_notebook_mode, plot, iplot
-
-        list_cols = list(
-            col for col in self.utilization_data.columns if col.find("percent") != -1
-        )
-        data = []
-        for l in list_cols:
-            data.append(
-                go.Scatter(
-                    x=self.utilization_data["time"],
-                    y=self.utilization_data[l],
-                    mode="lines",
-                    name="Node" + str(list_cols.index(l) + 1),
-                )
-            )
-
-        layout = go.Layout(
-            xaxis=dict(title="time in minute", tickmode="linear", tick0=0, dtick=1),
-            yaxis=dict(title="utilization in (%)"),
-        )
-        fig = go.Figure(data=data, layout=layout)
-        iplot(fig)
-    """
 
     def create_utilization_data(self):
-        # storing the min by min utilization data
+        # Storing the node wise per minute utilization data.
         time_data = list(range(self.simulation_time))
 
         node_data = {"time": time_data}
