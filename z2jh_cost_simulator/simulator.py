@@ -94,6 +94,7 @@ class Simulation:
         self.start_time = 0
         self.utilization_data = pd.DataFrame()
 
+    # TODO: make this have only one underscore, along with _add_users
     def __add_nodes(self):
 
         # Calculate the capacity of the node, given the node resource(memory) and
@@ -123,10 +124,10 @@ class Simulation:
         """
         The method will be looped till the 'stop' time.
         for each minute, the run method will:
-        1.Create user pods for active users
-        2.Try scheduling the user pods.
-        3.Auto scale the nodes.
-        4.Cull the pods according to the pod culling configuration.
+        1. Create user pods for active users
+        2. Try scheduling the user pods.
+        3. Auto scale the nodes.
+        4. Cull the pods according to the pod culling configuration.
         """
         if len(self.user_pool) == 0:
             self.__add_users()
