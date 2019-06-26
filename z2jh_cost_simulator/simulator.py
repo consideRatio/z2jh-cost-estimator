@@ -31,6 +31,7 @@ class NodeState(enum.Enum):
     """
     This class maintains the state of the Node.
     """
+
     Stopped = 0
     Starting = 1
     Running = 2
@@ -41,6 +42,7 @@ class Node:
     """
     Node class will be initialized with the capacity of user pods that can be scheduled on the node.
     """
+
     def __init__(self, simulation_time, capacity=20):
         """
         simulation_time - the duration of simulation(in minutes)
@@ -72,7 +74,6 @@ class Node:
 
 # The main class for running the simulation
 class Simulation:
-
     def __init__(self, configurations, user_activity):
         """
         configurations - Settings for Node memory/CPU usage, user pod memory/CPU usage and the configurations for pod culling.
@@ -80,7 +81,7 @@ class Simulation:
         user_activity  - The list of the activity of different users. 
                          Each user's activity is an array of 10080 minutes of 0's and 1's(0 for inactivity and 1 for active) 
         """
-    
+
         self.configurations = configurations
         self.node_pool = []
         self.user_pool = []
@@ -91,18 +92,21 @@ class Simulation:
 
     def _add_nodes(self):
 
-        #Calculate the capacity of the node, given the node resource(memory) and 
-        #user resource(memory). 
-        #Initialize the node pool with nodes for the selected min and max number of nodes.
+        # Calculate the capacity of the node, given the node resource(memory) and
+        # user resource(memory).
+        # Initialize the node pool with nodes for the selected min and max number of nodes.
         node_capacity = 0
-        node_available_memory = self.configurations['node_memory'] * 1024 - 216 
+        node_available_memory = self.configurations["node_memory"] * 1024 - 216
         # 216 MB is the approx. node memory used by system pods.
-        node_capacity = node_available_memory / self.configurations['user_pod_memory']
-        for node_count in range(self.configurations['min_nodes'],self.configurations['max_nodes']):
+        node_capacity = node_available_memory / self.configurations["user_pod_memory"]
+        for node_count in range(
+            self.configurations["min_nodes"], self.configurations["max_nodes"]
+        ):
             # rounding off the value to get the capacity.
-            self.node_pool.append(Node(self.simulation_time,capacity = round(node_capacity)))
-            
-            
+            self.node_pool.append(
+                Node(self.simulation_time, capacity=round(node_capacity))
+            )
+
     def _add_users(self):
         """Initialize the user list with the user activity
         """
@@ -111,7 +115,6 @@ class Simulation:
             user.activity = activity
             self.user_pool.append(user)
 
-    
     def run(self, stop=0):
         """
         The run method runs the simulation till the 'stop' time.
@@ -193,7 +196,7 @@ class Simulation:
                     for node in self.node_pool
                     if node.started_state[t] == NodeState.Running
                 ]
-                no_of_started_nodes = len(started_nodes)  #count of started nodes
+                no_of_started_nodes = len(started_nodes)  # count of started nodes
                 for node in started_nodes:
                     if no_of_started_nodes > self.configurations["min_nodes"]:
                         if (
