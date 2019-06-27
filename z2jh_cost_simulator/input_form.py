@@ -23,10 +23,11 @@ class InteractiveInputForm(InputForm):
     
     fig = None
 
-    def get_input_form(self):
+        
+    def get_input_form(self,figure_title):
         if self.fig:
             return self.fig
-        
+        self.figure_title = figure_title
         max_hours = 24+1
         max_users = 10
 
@@ -58,6 +59,7 @@ class InteractiveInputForm(InputForm):
             grid_lines='none',
             orientation='vertical',
         )
+        
 
         def _fix_input_callback(change):
             # ensures we draw integer values 0 or greater and that
@@ -79,6 +81,8 @@ class InteractiveInputForm(InputForm):
             axes=[x_axis, y_axis],
             interaction=handdraw_interaction,
             animation_duration=150,
+            title=self.figure_title,
+            
         )
         
         return self.fig
