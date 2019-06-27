@@ -68,10 +68,6 @@ class Node:
             self.utilized_capacity[time:] = self.utilized_capacity[time] - 1
         self.list_pods.remove(user_pod)
 
-        # else:
-        # raise "this should never happen"
-
-
 # The main class for running the simulation
 class Simulation:
     def __init__(self, configurations, user_activity):
@@ -117,19 +113,22 @@ class Simulation:
 
     def run(self, stop=0):
         """
-        The run method runs the simulation till the 'stop' time.
+        The run method runs the simulation. 
+        If 'stop' value is 0, then the simulation runs for the total duration. Specifying a value for 'stop' will run the simulation till the 'stop' time.
         For each minute, the run method will:
         1. Create user pods for active users.
         2. Try scheduling the user pods.
         3. Auto scale the nodes.
         4. Cull the pods according to the pod culling configuration.
         """
+        if stop == 0:
+            stop = self.simulation_time
+            
         if len(self.user_pool) == 0:
             self._add_users()
         if len(self.node_pool) == 0:
             self._add_nodes()
-        if stop == 0:
-            stop = self.simulation_time
+        
         ## The amount of time a user is allowed to be inactive before the user's pod is culled
         pod_culling_max_inactivity_time = self.configurations["pod_inactivity_time"]
 
