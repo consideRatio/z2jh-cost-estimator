@@ -68,6 +68,7 @@ class Node:
             self.utilized_capacity[time:] = self.utilized_capacity[time] - 1
         self.list_pods.remove(user_pod)
 
+
 # The main class for running the simulation
 class Simulation:
     def __init__(self, configurations, user_activity):
@@ -123,12 +124,12 @@ class Simulation:
         """
         if stop == 0:
             stop = self.simulation_time
-            
+
         if len(self.user_pool) == 0:
             self._add_users()
         if len(self.node_pool) == 0:
             self._add_nodes()
-        
+
         ## The amount of time a user is allowed to be inactive before the user's pod is culled
         pod_culling_max_inactivity_time = self.configurations["pod_inactivity_time"]
 
