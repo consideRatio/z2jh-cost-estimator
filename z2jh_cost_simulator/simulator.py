@@ -271,3 +271,24 @@ class Simulation:
 
             self.utilization_data = pd.DataFrame(data=node_data)
         return self.utilization_data
+
+    def calculate_cost(self):
+        list_nodes = list(
+            node
+            for node in self.utilization_data.columns
+            if node.find("utilized_capacity") != -1
+        )
+        cost_per_hour = (
+            self.configurations["cost_per_month"] / 720
+        )  # calcluate the cost per hour from the cost_per_month
+        total_no_hours_used = 0
+        for node in list_nodes:
+            # Number of hours the cluster is utilized in one week.
+            total_no_hours_used = (
+                total_no_hours_used
+                + len(self.utilization_data[(self.utilization_data[node] > 0)]) / 60
+            )
+
+        total_cost_utilization = cost_per_hour * total_no_hours_used
+        currency_format = "Total costs for one week ${:.2f}."
+        return currency_format.format(total_cost_utilization)
