@@ -10,7 +10,7 @@ def generate_user_activity(simultaneous_user_count):
     count_users = 0
 
     for index in range(len(hour_wise_users)):
-        
+
         if count_users == hour_wise_users[index]:
             for user_activity in random.sample(user_pool, k=hour_wise_users[index]):
                 _scale_user_activity(user_activity, index)
@@ -30,9 +30,7 @@ def generate_user_activity(simultaneous_user_count):
     return user_pool
 
 
-
 def _scale_user_activity(user_activity, index, scale=60):
     """This helper function expects a user_activity list and will return it but with many more elements. For example, you could transition from a hour resolution to a minute resolution by scaling with 60."""
     user_activity[index * scale : (index + 1) * scale] = 1
     return user_activity
-
