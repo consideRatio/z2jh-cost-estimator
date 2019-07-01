@@ -273,6 +273,8 @@ class Simulation:
         return self.utilization_data
 
     def calculate_cost(self):
+        """Calculate the cost for using the jupyter hub deployment for one week.
+        """
         list_nodes = list(
             node
             for node in self.utilization_data.columns
