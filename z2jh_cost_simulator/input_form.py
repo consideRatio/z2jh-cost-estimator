@@ -25,12 +25,11 @@ class InteractiveInputForm(InputForm):
     """
 
     fig = None
-    
 
     def get_input_form(self, figure_title, no_users=100):
         if self.fig:
             return self.fig
-        
+
         self.figure_title = figure_title
         max_hours = 24 + 1
         max_users = no_users
@@ -42,7 +41,7 @@ class InteractiveInputForm(InputForm):
         # Initialize data for our line
         line = bqplot.Lines(
             x=np.arange(0, max_hours),
-            y=np.zeros(max_hours),  
+            y=np.zeros(max_hours),
             scales={"x": x_scale, "y": y_scale},
             fill="bottom",
             fill_opacities=[0.5],
@@ -79,7 +78,7 @@ class InteractiveInputForm(InputForm):
             animation_duration=150,
             title=self.figure_title,
         )
-        
+
         return self.fig
 
     def get_data(self):
@@ -90,5 +89,5 @@ class InteractiveInputForm(InputForm):
         return self.fig.marks[0].y.astype(int)
 
     def set_default_figure(self):
-        self.fig.marks[0].y = np.arange(25)
-        #self.fig.marks[0].y = random.sample(range(1, 50),25)
+        self.fig.marks[0].y = np.arange(15)
+        # self.fig.marks[0].y = random.sample(range(1, 50),25)
