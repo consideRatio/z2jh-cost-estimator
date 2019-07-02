@@ -1,69 +1,88 @@
+## This notebook aims at estimating the cloud costs for a jupyter hub deployment using kubernetes
+## given some user activity for one week. 
+
+
 # Resources to simulate the cost of an autoscaling Z2JH deployment
 
 ## Development Notes
 
 ### To make changes and test them
 
-1. Clone the repo and make a change
+1. ### Using the cost-estimator on the local machine
+ 
+- Clone the repo and make a change
 
-2. Install `pipenv` using `pip`.
+    ```sh
+    git clone https://github.com/Sunita76/z2jh-cost-estimator.git
+    cd z2jh-cost-estimator
+    ```
+
+
+- Clone the repo and make a change
+
+    ```sh
+    git clone https://github.com/Sunita76/z2jh-cost-estimator.git
+    cd z2jh-cost-estimator
+    ```
+
+- Install `pipenv` using `pip`.
 
     ```sh
     pip install pipenv
     ```
 
-3. Setup a virtual development environment
+- Setup a virtual development environment
 
     ```sh
     pipenv install --dev
     ```
 
-4. Install the pre-commit hook for black autoformatting
+- Run tests
 
-    ```sh
-    pipenv run pre-commit install
-    ```
-
-5. Run tests
+  The test modules are present in the Z2jh-cost-estimator/z2jh_cost-simulator/tests
 
     ```sh
     pipenv run pytest
     ```
+- Open **test-simulator-package.ipynb** notebook in the jupyter lab.
+  Select Run -> Run all to run the simulator.
+ 
+2. ### Running this cost-estimator from mybinder.org
 
-### Build and upload a PyPI release
+    Follow the link given below to launch **test-simulator-package.ipynb** for cost-estimator.
 
-1. Test, build and upload the package
+    https://mybinder.org/v2/gh/Sunita76/z2jh-cost-estimator/master
 
-    ```sh
-    # Make sure you are up to date with what you have declared to require
-    pipenv install --dev
-
-    # Update changelog, fix requirements, etc.
-    pipenv lock -r > requirements.txt
-
-    # Run tests
-    pipenv run pytest
-
-    # Commit and tag to influence the PyPI version
-    # PBR will look for the latest tag and then append development
-    # versions based on your git commits since the latest tag.
-    git add .
-    git commit
+    Binder is ideally suited for relatively short sessions. Binder will automatically shut down user sessions that have more than 10 minutes of inactivity.
 
 
-    TAG=$(pipenv run python -c 'from pbr.version import VersionInfo; print(VersionInfo("discourse_sso_oidc_bridge").version_string())')
-    git tag -a $TAG -m "Release $TAG"
+3. ### Understanding this simulator
 
-    # Build the package
-    pipenv run python setup.py bdist_wheel
+- Input Form :
+  The input form allows the user of the simulator to draw a line containing the information about the maximum number of users that are using jupyter hub at a particular hour for one whole day.
 
-    # Upload the package to PyPI
-    pipenv run twine upload --skip-existing --username consideratio dist/*
-    ```
+![input-form](https://user-images.githubusercontent.com/47885949/60509794-1d488a00-9cce-11e9-9ade-f0a9ea53c3ac.png)
 
-2. Push git commits and tags
 
-    ```sh
-    git push
-    git push --tags
-    ```
+
+- Simulation :
+  The simulator runs for the whole week and store the information about the utilization of the cluster for the whole week.
+
+- Presentation :
+  The line chart shows how the nodes are scaled up/down depending on the users and their activity at that hour.
+  The line chart also shows the most utilised node at any hour.
+
+7. ### Contributing
+   Welcome to contribute. Pull requests are welcome for the given list of issues. For major changes, please open an issue first to discuss what you would like to change. 
+
+  - It would be nice to have an input form which can allow dynamic changes to the upper limit of the maximum number of users instead of configuring the value of the maximum number of users.
+    
+  - In the simulator, the number of nodes is restricted to a specific range, and when we have potentially unlimited users, they may end up as pending without us knowing. It would be a good to keep a track of the pending users, store the information, and present a graph displaying the number of pending users for every hour.
+   
+  - When you run the cost-estimator, the initial input-form which is displayed, assumes that the number of users increase steadily with each hour. It would be nice to design the input-form by taking into account the time of the day, the day of the week etc.  
+   
+
+
+   
+
+
