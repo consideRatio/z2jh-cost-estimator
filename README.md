@@ -1,7 +1,15 @@
-## This notebook aims at estimating the cloud costs for a jupyter hub deployment using kubernetes
-## given some user activity for one week. 
+# Z2JH Cost Estimator
+This project helps you estimate the cloud costs for a cloud based JupyterHub deployment given information about the estimated usage.
 
-1. ### Using the cost-estimator on the local machine
+## Running this cost-estimator from mybinder.org
+
+Follow the link given below to launch **test-simulator-package.ipynb** for cost-estimator.
+
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/Sunita76/z2jh-cost-estimator/master?urlpath=%2Flab%2Ftree%2Ftest_simulator_package.ipynb)
+
+Binder is ideally suited for relatively short sessions. Binder will automatically shut down user sessions that have more than 10 minutes of inactivity.
+
+## Using the cost-estimator on the local machine
  
 - Clone the repo and make a change
 
@@ -39,16 +47,10 @@
 - Open **test-simulator-package.ipynb** notebook in the jupyter lab.
   Select Run -> Run all to run the simulator.
  
-2. ### Running this cost-estimator from mybinder.org
 
-    Follow the link given below to launch **test-simulator-package.ipynb** for cost-estimator.
-
-    [cost-estimator](https://mybinder.org/v2/gh/Sunita76/z2jh-cost-estimator/master)
-
-    Binder is ideally suited for relatively short sessions. Binder will automatically shut down user sessions that have more than 10 minutes of inactivity.
     
 
-3. ### Understanding this cost-estimator
+## Understanding this cost-estimator
 
 - Input Form :
   The input form allows the user of the simulator to draw a line containing the information about the maximum number of users that are using jupyter hub at a particular hour for one whole day.
@@ -60,7 +62,7 @@
   The line chart shows how the nodes are scaled up/down depending on the users and their activity at that hour.
  
 
-4. ### Contributing
+## Contributing
     Pull requests are welcome for the given list of issues. 
 
   - It would be nice to have an input form which can allow dynamic changes to the upper limit of the maximum number of users instead of configuring the value of the maximum number of users.
@@ -71,7 +73,7 @@
   
     For major changes, please open an issue first to discuss what you would like to change. 
 
-5. ### Authors
+## Authors
     Sunita Anand
     
     Erik Sundell
