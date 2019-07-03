@@ -89,5 +89,7 @@ class InteractiveInputForm(InputForm):
         return self.fig.marks[0].y.astype(int)
 
     def set_default_figure(self):
-        self.fig.marks[0].y = np.arange(25)
+        
+        self.fig.marks[0].y = [0] * 10 + [30] * 1 + [31] * 5 + [30] * 1 + [0] * 8
+        
         

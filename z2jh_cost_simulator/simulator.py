@@ -93,7 +93,7 @@ class Simulation:
         # user resource(memory).
         # Initialize the node pool with nodes for the selected min and max number of nodes.
         node_capacity = 0
-        node_available_memory = self.configurations["node_memory"] * 1024 - 216
+        node_available_memory = self.configurations["node_memory"] - .216
         # 216 MB is the approx. node memory used by system pods.
         node_capacity = node_available_memory / self.configurations["user_pod_memory"]
         for node_count in range(
