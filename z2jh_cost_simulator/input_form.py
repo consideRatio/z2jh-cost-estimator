@@ -89,5 +89,5 @@ class InteractiveInputForm(InputForm):
         return self.fig.marks[0].y.astype(int)
 
     def set_default_figure(self):
-        self.fig.marks[0].y = np.arange(15)
-        # self.fig.marks[0].y = random.sample(range(1, 50),25)
+        self.fig.marks[0].y = np.arange(25)
+        
