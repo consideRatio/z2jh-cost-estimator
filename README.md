@@ -51,7 +51,7 @@ The working of the cost-estimator can be divided into the following steps:
  - **Transformation** : The data of the input-form is used to generate an estimated list of users with their usage. This user activity is then used as an input to the simulator.
  
  - **Simulation** : The simulator runs the simulation for the given user activity and stores the information about:  
-   How the users are scheduled on the nodes in the cluster 
+   How the users are scheduled on the nodes in the cluster   
    When are the nodes scaled up/down in the cluster
 
  - **Presentation** : The total cost for deploying jupyterhub using Kubernetes is calculated based on the simulation configurations and the utilization of the cluster.
