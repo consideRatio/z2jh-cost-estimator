@@ -71,9 +71,9 @@ For major changes, please open an issue first to discuss what you would like to 
 
 There are tests defined in [z2jh_cost_simulator/tests](z2jh_cost_simulator/tests). To run them:
 
-    ```sh
-    pytest
-    ```
+```sh
+pytest
+```
 
 ## Background
 
