@@ -5,7 +5,7 @@ This project helps you estimate the costs for an autoscaling [cloud based Jupyte
 
 Click on the **launch** link below to open a notebook where you can run the simulator for calculating the cloud costs for your JupyterHub deployment.
 
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/Sunita76/z2jh-cost-estimator/master?urlpath=%2Flab%2Ftree%2Ftest_simulator_package.ipynb)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/Sunita76/z2jh-cost-estimator/master?urlpath=/lab/tree/notebooks/test_simulator_package.ipynb)
 
 Binder is ideally suited for relatively short sessions. Binder will automatically shut down user sessions that have more than 10 minutes of inactivity.
 
