@@ -16,4 +16,4 @@ z2jh-cost-simulator-consideratio = {path = "."}
 numpy = "*"
 pandas = "*"
 plotly = "*"
-
+bqplot = "*"
