@@ -9,7 +9,7 @@ Click on the **launch** link below to open a notebook where you can run the simu
 
 Binder is ideally suited for relatively short sessions. Binder will automatically shut down user sessions that have more than 10 minutes of inactivity.
 
-## Using the cost-estimator on the local machine
+## Running the cost-estimator on your local machine
 
 - Clone the repo and make a change
 
@@ -77,4 +77,4 @@ pytest
 
 ## Background
 
-This project was founded by Sunita Anand ([@Sunita76](https://github.com/Sunita76)). It started as part of a summer intership at Sandvik's Center of Digital Excellence (CODE) with Erik Sundell as a guide.
+This project was founded by Sunita Anand ([@Sunita76](https://github.com/Sunita76)). It started as part of a summer intership at Sandvik's Center of Digital Excellence (CODE) with Erik Sundell ([@consideRatio](https://github.com/consideRatio)) as a guide.
